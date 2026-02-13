@@ -1,5 +1,5 @@
 <h1>Roblox account password cracker program script.</h1>
-just wanted to try myself at python cracking program (just wanted steal ppl robux/games stuff)
+just wanted to try myself at python cracking program (just wanted steal ppl robux/games stuff). <br></br>
 The concept of the program was relatively straightforward. It would automatically collect usernames from a server and insert each @username into a secondary Roblox login window. The script would then generate several possible password combinations derived from patterns within the username itself. These combinations would be tested sequentially in an attempt to log into the account. If successful, the program would display the discovered username and password.
 
 The file also claims that the script would bypass CAPTCHA verification through the use of an external API, allowing the automated system to continue operating without interruption.
