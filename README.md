@@ -7,7 +7,7 @@ The script would bypass CAPTCHA verification through the use of an external API,
 
 
 
-<h2> VERSION 1 (day 1> </h2> <h4> 13/02/26 </h4>
+<h2> VERSION 1 (day 1) </h2> <h4> 13/02/26 </h4>
 The central idea behind the program was to analyze the structure of a username and construct potential passwords based on recognizable elements within it.
 <br></br>
 Examples: 
