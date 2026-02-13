@@ -9,6 +9,7 @@ The script would bypass CAPTCHA verification through the use of an external API,
 
 <h2> VERSION 1 </h2> <h4> 13/02/26 </h4>
 The central idea behind the program was to analyze the structure of a username and construct potential passwords based on recognizable elements within it.
+
 Examples: 
 - coocked_maxim77720232 -> maxim20223
 - someromanthing777 -> roman777
