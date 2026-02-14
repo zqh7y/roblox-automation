@@ -3,7 +3,7 @@
 # ===========================================
 # 1st input: (346, 448)
 # 2nd input: (345, 516)
-# Button:    (480, 584)
+# Button:    (471, 574)
 # Extra pre‑button triple clicks: (630, 448) and (630, 516)
 # ===========================================
 
@@ -11,9 +11,9 @@ import sys
 import time
 import pyautogui
 import pygetwindow as gw
-from algo import generate_candidates
+from algo import generate_candidates  # 👈 new import
 
-# Auto-install missing packages
+# Auto-install missing packages (same as before)
 try:
     import pyautogui
 except ImportError:
@@ -90,26 +90,15 @@ def triple_click_at(pos):
 
 
 def click_button_reliable():
-    """
-    - Instant move to button (480,584)
-    - Click once
-    - Move 10px right to (490,584) over 0.5s
-    - Click again
-    """
-    print("   🖱️ Instant move to button...")
-    pyautogui.moveTo(pos3[0], pos3[1], duration=0)
-    time.sleep(0.05)
-    pyautogui.click()
-    print("   ✅ First click")
-
-    # Move 10px right over 0.5 seconds
-    target_x = pos3[0] + 10
-    target_y = pos3[1]
-    print(f"   ➡️ Moving to ({target_x}, {target_y}) over 0.5s...")
-    pyautogui.moveTo(target_x, target_y, duration=0.5)
-    time.sleep(0.05)
-    pyautogui.click()
-    print("   ✅ Second click (after move)")
+    """Instant move, then two slow clicks (0.25s apart)"""
+    print("   🖱️ Clicking button (instant move, slow clicks)...")
+    pyautogui.moveTo(pos3[0], pos3[1], duration=0)  # ⚡ instant
+    time.sleep(0.05)  # tiny safety
+    pyautogui.click()  # first click
+    time.sleep(0.25)  # 0.25s delay
+    pyautogui.click()  # second click
+    time.sleep(0.25)  # 0.25s delay
+    print("   ✅ Button clicked twice (0.5s total)")
 
 
 def main():
@@ -121,14 +110,14 @@ def main():
     global pos3
     pos1 = (346, 448)
     pos2 = (345, 516)
-    pos3 = (480, 584)  # button
+    pos3 = (471, 574)
     extra1 = (630, 448)
     extra2 = (630, 516)
 
     print("\n📍 POSITIONS:")
     print(f"   Input 1: {pos1}")
     print(f"   Input 2: {pos2}")
-    print(f"   Button:  {pos3} (instant + 10px right move)")
+    print(f"   Button:  {pos3}")
     print(f"   Extra 1: {extra1} (auto triple‑click + delete)")
     print(f"   Extra 2: {extra2} (auto triple‑click + delete)")
 
@@ -156,79 +145,139 @@ def main():
     raw = input("Enter text for first field: ")
     text1 = raw.rstrip()
 
-    # Generate all possible second‑input candidates (filtered to length >=8)
+    # ============ CANDIDATE SELECTION ============
     candidates = generate_candidates(text1)
-    print(f"\n🤖 Found {len(candidates)} possible outputs (length >=8):")
+    if not candidates:
+        # fallback, should never happen
+        candidates = [text1 + "123"]
+
+    print("\n🤖 Possible outputs:")
     for i, cand in enumerate(candidates, 1):
         print(f"   {i}. {cand}")
 
-    # ---------- AUTOMATIC PROCESSING OF EACH CANDIDATE ----------
-    for idx, text2 in enumerate(candidates, 1):
-        print(f"\n{'='*60}")
-        print(f"PROCESSING CANDIDATE #{idx}: '{text2}'")
-        print(f"{'='*60}")
+    if len(candidates) == 1:
+        text2 = candidates[0]
+        print(f"\n🤖 Auto-selected: '{text2}'")
+    else:
+        choice = input("\nChoose number (or press Enter for #1): ").strip()
+        if choice.isdigit() and 1 <= int(choice) <= len(candidates):
+            text2 = candidates[int(choice) - 1]
+        else:
+            text2 = candidates[0]
+        print(f"   Selected: '{text2}'")
 
-        # Focus Roblox for the second input
-        print("\n   🔄 Focusing Roblox...")
-        pyautogui.hotkey("alt", "tab")
-        time.sleep(0.05)
+    print("\n   👆 Click BACK to Roblox window now...")
+    print("   (Press Enter when ready to type)")
+    input()
 
-        # Move to second input position and fill it
-        print(f"\n📍 Moving mouse to second input at {pos2}...")
-        pyautogui.moveTo(pos2[0], pos2[1], duration=0)
-        time.sleep(0.05)
+    print(f"\n🚀 Filling first input...")
+    pyautogui.moveTo(pos1[0], pos1[1], duration=0)
+    time.sleep(0.05)
+    select_all_triple_click()
+    pyautogui.press("delete")
+    time.sleep(0.05)
+    pyautogui.write(text1, interval=0)
+    time.sleep(0.05)
+    print(f"   ✅ Entered: '{text1}' at {pos1}")
+    time.sleep(0.05)
 
-        # Clear and type the second input
-        select_all_triple_click()
-        pyautogui.press("delete")
-        time.sleep(0.05)
-        pyautogui.write(text2, interval=0)
-        time.sleep(0.05)
-        print(f"   ✅ Entered: '{text2}' at {pos2}")
-
-        # ---------- AUTOMATIC PRE-BUTTON ACTIONS ----------
-        print("\n" + "-" * 40)
-        print("AUTOMATIC PRE-BUTTON ACTIONS")
-        print("-" * 40)
-
-        # First extra position
-        print(f"📍 Triple‑clicking at extra1 {extra1}...")
-        triple_click_at(extra1)
-        pyautogui.press("delete")
-        time.sleep(0.05)
-        print("   ✅ Extra1 triple‑clicked + delete")
-
-        # Second extra position
-        print(f"📍 Triple‑clicking at extra2 {extra2}...")
-        triple_click_at(extra2)
-        pyautogui.press("delete")
-        time.sleep(0.05)
-        print("   ✅ Extra2 triple‑clicked + delete")
-
-        # ---------- BUTTON CLICK (AUTOMATIC) ----------
-        print("\n" + "-" * 40)
-        print("CLICKING BUTTON")
-        print("-" * 40)
-
-        click_button_reliable()
-
-        # 👇 3‑second pause after button click before next candidate
-        print("   ⏸️ Waiting 3 seconds...")
-        time.sleep(3)
-
-    # ============ ALL CANDIDATES COMPLETED ============
-    focus_vscode_terminal()
+    # ============ STEP 2: SECOND INPUT ============
     print("\n" + "=" * 60)
-    print("✅✅✅ ALL CANDIDATES PROCESSED! ✅✅✅")
+    print("STEP 2: SECOND INPUT FIELD")
+    print("=" * 60)
+
+    focus_vscode_terminal()
+
+    print(f"\n📍 Moving mouse to second input at {pos2}...")
+    pyautogui.moveTo(pos2[0], pos2[1], duration=0)
+    time.sleep(0.05)
+
+    confirm2 = (
+        input("✅ Is this the correct SECOND input field? (y/n): ").strip().lower()
+    )
+    if confirm2 not in ("y", ""):
+        print("❌ Automation cancelled at STEP 2")
+        return
+
+    print("\n   👆 Click BACK to terminal window now...")
+    print("   (Then press Enter when ready to continue)")
+    input()
+
+    print(f"\n📝 Using selected text: '{text2}'")
+
+    print("\n   👆 Click BACK to Roblox window now...")
+    print("   (Press Enter when ready to type)")
+    input()
+
+    print(f"\n🚀 Filling second input...")
+    pyautogui.moveTo(pos2[0], pos2[1], duration=0)
+    time.sleep(0.05)
+    select_all_triple_click()
+    pyautogui.press("delete")
+    time.sleep(0.05)
+    pyautogui.write(text2, interval=0)
+    time.sleep(0.05)
+    print(f"   ✅ Entered: '{text2}' at {pos2}")
+    time.sleep(0.05)
+
+    # ============ AUTOMATIC PRE-BUTTON ACTIONS ============
+    print("\n" + "=" * 60)
+    print("AUTOMATIC PRE-BUTTON ACTIONS")
+    print("=" * 60)
+
+    print("   🔄 Focusing Roblox for extra clicks...")
+    pyautogui.hotkey("alt", "tab")
+    time.sleep(0.05)
+
+    print(f"\n📍 Triple‑clicking at extra1 {extra1}...")
+    triple_click_at(extra1)
+    pyautogui.press("delete")
+    time.sleep(0.05)
+    print("   ✅ Extra1 triple‑clicked + delete")
+
+    print(f"📍 Triple‑clicking at extra2 {extra2}...")
+    triple_click_at(extra2)
+    pyautogui.press("delete")
+    time.sleep(0.05)
+    print("   ✅ Extra2 triple‑clicked + delete")
+
+    # ============ STEP 3: BUTTON ============
+    print("\n" + "=" * 60)
+    print("STEP 3: BUTTON")
+    print("=" * 60)
+
+    focus_vscode_terminal()
+
+    print(f"\n📍 Moving mouse to button at {pos3}...")
+    pyautogui.moveTo(pos3[0], pos3[1], duration=0)
+    time.sleep(0.05)
+
+    confirm3 = input("✅ Is this the correct BUTTON? (y/n): ").strip().lower()
+    if confirm3 not in ("y", ""):
+        print("❌ Automation cancelled at STEP 3")
+        return
+
+    print("\n   👆 Click BACK to Roblox window now...")
+    print("   (Press Enter when ready to click)")
+    input()
+
+    click_button_reliable()
+    focus_vscode_terminal()
+    print("   🔄 Terminal refocused – ready for next steps.")
+
+    # ============ COMPLETE ============
+    print("\n" + "=" * 60)
+    print("✅✅✅ AUTOMATION COMPLETE! ✅✅✅")
     print("=" * 60)
     print(f"\n📋 SUMMARY:")
-    print(f"   First input:  '{text1}'")
-    print(f"   Candidates processed: {len(candidates)}")
-    for i, cand in enumerate(candidates, 1):
-        print(f"      #{i}: '{cand}'")
+    print(f"   Input 1: '{text1}' at {pos1}")
+    print(f"   Input 2: '{text2}' at {pos2}")
+    print(f"   Extra1:  triple‑clicked at {extra1}")
+    print(f"   Extra2:  triple‑clicked at {extra2}")
+    print(f"   Button:  clicked at {pos3}")
     print("\n" + "=" * 60)
 
-    again = input("\nRun again with a new first input? (y/n): ").strip().lower()
+    again = input("\nRun again? (y/n): ").strip().lower()
     if again in ("y", ""):
         main()
     else:
