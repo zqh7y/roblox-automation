@@ -9,6 +9,7 @@
 # 5. If no name, use the original text (if it has digits) or original+"123".
 # 6. Return a sorted list of unique candidates (years first, then longer monotonic).
 # 7. Only include candidates with length >= 8 characters.
+# 8. NEVER include a candidate that is exactly the original input.
 # ===========================================
 
 import re
@@ -78,6 +79,7 @@ def generate_candidates(text):
     """
     Return a list of possible output strings based on the input.
     Candidates are sorted by priority and filtered to length >= 8.
+    NEVER includes the original input itself.
     """
     candidates = set()
     names = find_all_names(text)
@@ -109,23 +111,28 @@ def generate_candidates(text):
             # No name and no qualifying digits: append "123"
             candidates.add(text + "123")
 
-    # Always include original text as an option (if not already)
-    candidates.add(text)
+    # Always include original text as an option? No – we will remove it if present.
+    # We add it only as a fallback if nothing else exists, but we'll handle that later.
+    # Actually, we might need the original for cases where it contains digits but no name.
+    # But we will remove it if it appears, and if after removal there's nothing, we create a new one.
 
     # Remove trailing spaces
     candidates = {c.rstrip() for c in candidates}
 
+    # Remove the original input itself (if present)
+    candidates.discard(text)
+
     # Filter by length >= 8
     candidates = {c for c in candidates if len(c) >= 8}
 
-    # If after filtering we have no candidates, add a fallback
+    # If after filtering we have no candidates, create a fallback that's different from input
     if not candidates:
-        # Ensure we have at least one candidate that meets length
-        # Try original text if it's >=8, otherwise create "default123"
-        if len(text) >= 8:
-            candidates.add(text)
-        else:
-            candidates.add("default123")  # 9 chars, meets requirement
+        # Try to create something like "default123" or input + "123"
+        fallback = text + "123"
+        # Ensure fallback is at least 8 chars (if text is short, it might be less)
+        if len(fallback) < 8:
+            fallback = "default123"  # 9 chars, guaranteed different
+        candidates.add(fallback)
 
     # Sort candidates in priority order
     def candidate_key(c):
